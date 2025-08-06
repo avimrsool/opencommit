@@ -52,6 +52,18 @@ export class OllamaEngine implements AiEngine {
 
       const { response: ollamaResponse } = response.data;
       let content = ollamaResponse;
+      
+      // Clean up the response by removing instruction text
+      content = content.replace(/^Here is the commit message:\s*/i, '');
+      content = content.replace(/^Here is the commit message based on the diff output:\s*/i, '');
+      content = content.replace(/^Commit message:\s*/i, '');
+      content = content.replace(/^Generated commit message:\s*/i, '');
+      content = content.replace(/^Based on the diff, here's a commit message:\s*/i, '');
+      content = content.replace(/^Here's a commit message:\s*/i, '');
+      
+      // Remove any leading/trailing whitespace and newlines
+      content = content.trim();
+      
       return removeContentTags(content, 'think');
     } catch (err: any) {
       const message = err.response?.data?.error ?? err.message;

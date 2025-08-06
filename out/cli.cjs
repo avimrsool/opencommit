@@ -61791,24 +61791,37 @@ var OllamaEngine = class {
       ...config7.customHeaders
     };
     this.client = axios_default.create({
-      url: config7.baseURL ? `${config7.baseURL}/${config7.apiKey}` : "http://localhost:11434/api/chat",
+      baseURL: config7.baseURL || "http://localhost:11434",
       headers
     });
   }
   async generateCommitMessage(messages) {
+    const prompt = messages.map((msg) => {
+      if (msg.role === "system") {
+        return `System: ${msg.content}`;
+      } else if (msg.role === "user") {
+        return `User: ${msg.content}`;
+      } else if (msg.role === "assistant") {
+        return `Assistant: ${msg.content}`;
+      }
+      return msg.content;
+    }).join("\n\n");
     const params = {
-      model: this.config.model ?? "mistral",
-      messages,
-      options: { temperature: 0, top_p: 0.1 },
+      model: this.config.model ?? "llama3.2:3b",
+      prompt,
       stream: false
     };
     try {
-      const response = await this.client.post(
-        this.client.getUri(this.config),
-        params
-      );
-      const { message } = response.data;
-      let content = message?.content;
+      const response = await this.client.post("/api/generate", params);
+      const { response: ollamaResponse } = response.data;
+      let content = ollamaResponse;
+      content = content.replace(/^Here is the commit message:\s*/i, "");
+      content = content.replace(/^Here is the commit message based on the diff output:\s*/i, "");
+      content = content.replace(/^Commit message:\s*/i, "");
+      content = content.replace(/^Generated commit message:\s*/i, "");
+      content = content.replace(/^Based on the diff, here's a commit message:\s*/i, "");
+      content = content.replace(/^Here's a commit message:\s*/i, "");
+      content = content.trim();
       return removeContentTags(content, "think");
     } catch (err) {
       const message = err.response?.data?.error ?? err.message;

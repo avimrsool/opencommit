@@ -140,14 +140,14 @@ const INIT_MAIN_PROMPT = (
     const commitConvention = fullGitMojiSpec
       ? 'GitMoji specification'
       : 'Conventional Commit Convention';
-    const missionStatement = `${IDENTITY} Your mission is to create clean and comprehensive commit messages as per the ${commitConvention} and explain WHAT were the changes and mainly WHY the changes were done.`;
+    const missionStatement = `${IDENTITY} Your mission is to create a single, clean and comprehensive commit message as per the ${commitConvention}. Generate only ONE commit message that summarizes all changes.`;
     const diffInstruction =
-      "I'll send you an output of 'git diff --staged' command, and you are to convert it into a commit message.";
+      "I'll send you an output of 'git diff --staged' command, and you are to convert it into a single commit message.";
     const conventionGuidelines = getCommitConvention(fullGitMojiSpec);
     const descriptionGuideline = getDescriptionInstruction();
     const oneLineCommitGuideline = getOneLineCommitInstruction();
     const scopeInstruction = getScopeInstruction();
-    const generalGuidelines = `Use the present tense. Lines must not be longer than 74 characters. Use ${language} for the commit message.`;
+    const generalGuidelines = `Use the present tense. Lines must not be longer than 74 characters. Use ${language} for the commit message. Generate only ONE commit message that covers all changes.`;
     const userInputContext = userInputCodeContext(context);
 
     return `${missionStatement}\n${diffInstruction}\n${conventionGuidelines}\n${descriptionGuideline}\n${oneLineCommitGuideline}\n${scopeInstruction}\n${generalGuidelines}\n${userInputContext}`;
